@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Conversationalists — Teacher Schedule</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --purple:#9B3FC0;
+  --purple-deep:#6E2A8C;
+  --teal:#5CE1E6;
+  --teal-deep:#2CB6BB;
+  --pink:#F45C9C;
+  --yellow:#F9E795;
+  --yellow-deep:#C9A400;
+  --green:#3FB87A;
+  --green-deep:#227A50;
+  --red:#E5484D;
+  --red-deep:#A8272C;
+  --ink:#1C1C2E;
+  --paper:#FBF9FF;
+  --card:#FFFFFF;
+  --line:#E7E1F2;
+  --muted:#8A83A0;
+  --radius:16px;
+  --shadow: 0 4px 18px rgba(28,28,46,0.07);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  padding:28px 22px 60px;
+}
+
+.wrap{max-width:1180px;margin:0 auto;}
+
+/* ---------- Header ---------- */
+header.top{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+  margin-bottom:22px;
+}
+.brand{display:flex;align-items:center;gap:14px;}
+.brand-badge{
+  width:52px;height:52px;border-radius:14px;
+  background:linear-gradient(145deg,var(--purple),var(--purple-deep));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow);
+  flex-shrink:0;
+}
+.brand-badge svg{width:28px;height:28px;}
+.brand h1{
+  font-family:'Manrope',sans-serif;
+  font-weight:800;
+  font-size:24px;
+  margin:0;
+  color:var(--purple-deep);
+  letter-spacing:-.2px;
+}
+.brand p{margin:2px 0 0;font-size:13px;color:var(--muted);font-weight:500;}
+
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+select, .btn, input.field{
+  font-family:'Inter',sans-serif;
+  font-size:13.5px;
+  border-radius:10px;
+  border:1.5px solid var(--line);
+  padding:9px 13px;
+  background:var(--card);
+  color:var(--ink);
+  outline:none;
+}
+select{font-weight:600;min-width:170px;cursor:pointer;}
+.btn{
+  cursor:pointer;font-weight:700;border:none;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.btn:active{transform:scale(0.96);}
+.btn-purple{background:var(--purple);color:#fff;box-shadow:0 3px 10px rgba(155,63,192,.35);}
+.btn-purple:hover{box-shadow:0 5px 14px rgba(155,63,192,.45);}
+.btn-ghost{background:#fff;color:var(--purple-deep);border:1.5px solid var(--line);}
+.btn-ghost:hover{border-color:var(--purple);}
+.btn-danger{background:#fff;color:var(--pink);border:1.5px solid #FBD6E5;}
+.btn-sm{padding:6px 10px;font-size:12px;border-radius:8px;}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;gap:6px;margin:18px 0 18px;background:#F1EBFB;padding:5px;border-radius:12px;width:fit-content;}
+.tab{
+  padding:9px 18px;border-radius:9px;font-weight:700;font-size:13.5px;
+  cursor:pointer;color:var(--purple-deep);opacity:.6;
+  transition:all .15s ease;
+}
+.tab.active{background:#fff;opacity:1;box-shadow:var(--shadow);}
+.view{display:none;}
+.view.active{display:block;}
+
+/* ---------- Legend ---------- */
+.legend{
+  display:flex;gap:16px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:12px 18px;margin-bottom:18px;
+  box-shadow:var(--shadow);
+}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink);}
+.swatch{width:14px;height:14px;border-radius:5px;flex-shrink:0;}
+.sw-free{background:#DFFAFB;border:2px solid var(--teal-deep);}
+.sw-pending{background:var(--yellow);border:2px solid var(--yellow-deep);}
+.sw-active{background:var(--green);}
+.sw-finished{background:var(--red);}
+
+/* ---------- Grid ---------- */
+.grid-card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow);overflow-x:auto;
+}
+.grid-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.grid-title h2{font-family:'Manrope',sans-serif;font-weight:800;font-size:18px;color:var(--purple-deep);margin:0;letter-spacing:-.1px;}
+.grid-title .sub{font-size:12px;color:var(--muted);font-weight:600;}
+
+table.schedule{border-collapse:separate;border-spacing:6px;width:100%;min-width:760px;}
+table.schedule th{
+  font-size:12px;font-weight:800;color:#fff;padding:9px 4px;border-radius:10px;
+  text-align:center;letter-spacing:.3px;
+}
+th.day-a{background:var(--purple);}
+th.day-b{background:var(--teal-deep);}
+th.day-c{background:var(--pink);}
+th.slot-col{
+  background:transparent !important;color:var(--muted) !important;
+  font-size:11px;text-align:left;padding-left:6px;min-width:96px;
+}
+.group-tag{display:block;font-size:9px;font-weight:600;opacity:.85;margin-top:1px;}
+
+td.slot-label{
+  font-size:12px;font-weight:700;color:var(--ink);vertical-align:middle;
+  padding:4px 6px;white-space:nowrap;
+}
+td.cell{
+  border-radius:11px;height:64px;min-width:118px;
+  cursor:pointer;position:relative;padding:6px 8px;
+  border:2px solid transparent;
+  transition:transform .1s ease, box-shadow .1s ease;
+  vertical-align:top;
+}
+td.cell:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(28,28,46,.12);}
+.cell.free{background:#EAFDFE;border-color:var(--teal-deep);}
+.cell.pending{background:#FFF8DC;border-color:var(--yellow-deep);}
+.cell.active{background:linear-gradient(150deg,var(--green),var(--green-deep));color:#fff;}
+.cell.finished{background:linear-gradient(150deg,var(--red),var(--red-deep));color:#fff;}
+.cell-course{font-size:12.5px;font-weight:800;line-height:1.2;}
+.cell-meta{font-size:10.5px;font-weight:600;opacity:.85;margin-top:3px;display:flex;align-items:center;gap:4px;}
+.cell-time{font-size:9.5px;font-weight:700;margin-top:4px;opacity:.9;}
+.cell.free .cell-course{color:var(--teal-deep);font-size:11px;font-weight:700;}
+.mode-icon{font-size:11px;}
+.link-icon{font-size:10px;}
+
+/* ---------- Overview tab ---------- */
+.overview-controls{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+table.overview{border-collapse:separate;border-spacing:6px;width:100%;min-width:640px;}
+table.overview th{font-size:11.5px;font-weight:800;color:#fff;background:var(--purple-deep);padding:8px 4px;border-radius:9px;}
+table.overview td.tname{font-size:12.5px;font-weight:700;padding:4px 8px;white-space:nowrap;}
+table.overview td.cell{height:44px;min-width:100px;}
+table.overview .cell-course{font-size:11px;}
+
+/* ---------- Log tab ---------- */
+.log-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+table.log{border-collapse:collapse;width:100%;font-size:12.5px;}
+table.log thead th{
+  background:#F1EBFB;color:var(--purple-deep);text-align:left;padding:11px 12px;
+  font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;
+  position:sticky;top:0;
+}
+table.log tbody td{padding:10px 12px;border-top:1px solid var(--line);}
+table.log tbody tr:hover{background:#FBF9FF;}
+.pill{padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:800;display:inline-block;}
+.pill-active{background:#DDF5E8;color:var(--green-deep);}
+.pill-pending{background:#FCF2B5;color:#8A6E00;}
+.pill-finished{background:#FBDBDC;color:var(--red-deep);}
+.pill-free{background:#DFFAFB;color:var(--teal-deep);}
+.empty-log{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;}
+
+/* ---------- Modal ---------- */
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(28,28,46,.45);
+  align-items:center;justify-content:center;z-index:50;padding:16px;
+}
+.overlay.active{display:flex;}
+.modal{
+  background:#fff;border-radius:18px;width:100%;max-width:440px;
+  padding:24px;box-shadow:0 20px 50px rgba(28,28,46,.25);
+  max-height:88vh;overflow-y:auto;
+  position:relative;
+}
+.modal h3{font-family:'Manrope',sans-serif;font-weight:800;color:var(--purple-deep);margin:0 0 4px;font-size:18px;letter-spacing:-.1px;}
+.modal .modal-sub{font-size:12px;color:var(--muted);margin-bottom:16px;font-weight:600;}
+.field-row{margin-bottom:13px;}
+.field-row label{display:block;font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;}
+.field-row input, .field-row select, .field-row textarea{
+  width:100%;padding:10px 11px;border-radius:10px;border:1.5px solid var(--line);
+  font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);
+}
+.field-row textarea{resize:vertical;min-height:50px;}
+.field-hint{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500;}
+.field-row label.checkbox-line{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--muted);text-transform:none;margin-top:7px;margin-bottom:0;cursor:pointer;}
+.checkbox-line input{width:14px;height:14px;flex-shrink:0;margin:0;}
+.status-choices{display:flex;gap:6px;flex-wrap:wrap;}
+.status-choices button{
+  flex:1;min-width:74px;padding:8px 4px;border-radius:10px;border:2px solid var(--line);
+  background:#fff;font-size:11.5px;font-weight:800;cursor:pointer;color:var(--muted);
+}
+.status-choices button.on.free{border-color:var(--teal-deep);background:#EAFDFE;color:var(--teal-deep);}
+.status-choices button.on.booked{border-color:var(--purple);background:var(--purple);color:#fff;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mode-toggle{display:flex;gap:6px;}
+.mode-toggle button{
+  flex:1;padding:8px;border-radius:10px;border:2px solid var(--line);background:#fff;
+  font-weight:700;font-size:12.5px;cursor:pointer;color:var(--muted);
+}
+.mode-toggle button.on{border-color:var(--purple);background:#F1E4FA;color:var(--purple-deep);}
+.link-box{background:#F8F6FF;border-radius:12px;padding:11px 13px;margin-bottom:13px;display:flex;align-items:flex-start;gap:9px;}
+.link-box input[type=checkbox]{margin-top:2px;width:16px;height:16px;flex-shrink:0;}
+.link-box .link-label{font-size:12.5px;font-weight:700;color:var(--ink);}
+.link-box .link-sub{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px;}
+.modal-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;}
+.modal-actions .btn{flex:1;text-align:center;min-width:120px;}
+.close-x{position:absolute;top:16px;right:18px;cursor:pointer;color:var(--muted);font-size:18px;font-weight:700;background:none;border:none;}
+
+/* Manage teachers / settings modal */
+.teacher-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);}
+.teacher-row span{flex:1;font-weight:700;font-size:13.5px;}
+
+.note-banner{
+  font-size:12px;color:var(--muted);background:#F1EBFB;border-radius:10px;
+  padding:9px 13px;margin-bottom:10px;font-weight:600;
+}
+.save-status{font-size:11.5px;font-weight:700;margin:0 0 16px 2px;min-height:14px;}
+.save-status.ok{color:var(--teal-deep);}
+.save-status.fail{color:var(--red-deep);}
+footer.foot{text-align:center;margin-top:30px;font-size:11.5px;color:var(--muted);font-weight:600;}
+
+@media(max-width:640px){
+  .brand h1{font-size:21px;}
+  table.schedule{min-width:680px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16M4 12h10M4 19h16" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1>The Conversationalists</h1>
+        <p>Teacher Schedule System</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <select id="teacherSelect"></select>
+      <button class="btn btn-ghost btn-sm" id="manageBtn">Manage teachers</button>
+      <button class="btn btn-ghost btn-sm" id="exportBtn">Export backup</button>
+      <button class="btn btn-ghost btn-sm" id="importBtn">Import backup</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none;">
+    </div>
+  </header>
+
+  <div class="note-banner" id="shareNote">This schedule is shared — everyone who opens this link sees and can edit the same data in real time, and it's saved permanently.</div>
+  <div class="save-status" id="saveStatus"></div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="swatch sw-free"></span>Free</div>
+    <div class="legend-item"><span class="swatch sw-pending"></span>Not started yet</div>
+    <div class="legend-item"><span class="swatch sw-active"></span>In progress</div>
+    <div class="legend-item"><span class="swatch sw-finished"></span>Finished</div>
+    <div class="legend-item">💻 Online · 🏫 Offline</div>
+    <div class="legend-item">🔗 Linked to paired day</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-view="weekly">Weekly Grid</div>
+    <div class="tab" data-view="overview">Team Overview</div>
+    <div class="tab" data-view="log">Attendance Log</div>
+  </div>
+
+  <!-- WEEKLY VIEW -->
+  <div class="view active" id="view-weekly">
+    <div class="grid-card">
+      <div class="grid-title">
+        <h2 id="weeklyTitle">Schedule</h2>
+        <span class="sub">Click any slot to edit — status, mode, times &amp; linked day</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="schedule" id="weeklyTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERVIEW VIEW -->
+  <div class="view" id="view-overview">
+    <div class="grid-card">
+      <div class="grid-title">
+        <h2>Team Overview</h2>
+        <span class="sub">All teachers, one day at a time</span>
+      </div>
+      <div class="overview-controls">
+        <select id="daySelect"></select>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="overview" id="overviewTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG VIEW -->
+  <div class="view" id="view-log">
+    <div class="log-wrap">
+      <table class="log">
+        <thead>
+          <tr><th>Teacher</th><th>Day</th><th>Time</th><th>Course</th><th>Mode</th><th>Status</th><th>Linked</th><th>Note</th></tr>
+        </thead>
+        <tbody id="logBody"></tbody>
+      </table>
+      <div class="empty-log" id="logEmpty" style="display:none;">No booked slots logged yet.</div>
+    </div>
+  </div>
+
+  <footer class="foot">The Conversationalists · Internal tool</footer>
+</div>
+
+<!-- EDIT SLOT MODAL -->
+<div class="overlay" id="cellOverlay">
+  <div class="modal">
+    <button class="close-x" id="cellClose">&times;</button>
+    <h3 id="cellTitle">Edit slot</h3>
+    <div class="modal-sub" id="cellSub"></div>
+
+    <div class="field-row">
+      <label>Status</label>
+      <div class="status-choices" id="statusChoices">
+        <button data-v="free" class="free">Free</button>
+        <button data-v="booked" class="booked">Booked</button>
+      </div>
+    </div>
+
+    <div id="detailFields">
+      <div class="field-row" id="modeFieldRow">
+        <label>Mode</label>
+        <div class="mode-toggle" id="modeToggle">
+          <button data-v="online">💻 Online</button>
+          <button data-v="offline">🏫 Offline</button>
+        </div>
+      </div>
+      <div class="field-row">
+        <label>Course / class name</label>
+        <input type="text" id="courseInput" placeholder="e.g. Conversation B2 – Group 3">
+      </div>
+      <div class="field-row">
+        <label>Class time</label>
+        <div class="two-col">
+          <input type="time" id="startTimeInput">
+          <input type="time" id="endTimeInput">
+        </div>
+        <div class="field-hint">Fixed slots are 2–4, 4–6, 6–8 &amp; 8–10 PM. Only change these if this class runs at a different time (e.g. 7:00–9:00).</div>
+      </div>
+      <div class="two-col">
+        <div class="field-row">
+          <label>Start date</label>
+          <input type="date" id="startDateInput">
+          <label class="checkbox-line"><input type="checkbox" id="startUndeterminedCheckbox"> Not determined</label>
+        </div>
+        <div class="field-row">
+          <label>End date</label>
+          <input type="date" id="endDateInput">
+          <label class="checkbox-line"><input type="checkbox" id="endUndeterminedCheckbox"> Not determined</label>
+        </div>
+      </div>
+      <div class="link-box" id="linkBox">
+        <input type="checkbox" id="linkCheckbox">
+        <div>
+          <div class="link-label" id="linkLabel">Also apply to paired day</div>
+          <div class="link-sub">Edits here will update both days together until unlinked.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>Note</label>
+      <textarea id="noteInput" placeholder="Optional"></textarea>
+    </div>
+
+    <div class="modal-actions" id="modalActions">
+      <button class="btn btn-danger" id="clearCellBtn">Clear this day</button>
+      <button class="btn btn-danger" id="clearBothBtn" style="display:none;">Clear both days</button>
+      <button class="btn btn-purple" id="saveCellBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE / SETTINGS MODAL -->
+<div class="overlay" id="teacherOverlay">
+  <div class="modal">
+    <button class="close-x" id="teacherClose">&times;</button>
+    <h3>Manage teachers</h3>
+    <div class="modal-sub">Add or remove teachers</div>
+    <div id="teacherList"></div>
+    <div class="field-row" style="margin-top:14px;">
+      <label>New teacher name</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="newTeacherInput" placeholder="Full name">
+        <button class="btn btn-purple btn-sm" id="addTeacherBtn">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://ramgwebanrusztfsglht.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_f6MdtG3UVM2_uHwvUhVlCA_76af7hvU';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const DAYS = [
+  {id:'sat', label:'Saturday', group:'a'},
+  {id:'sun', label:'Sunday', group:'b'},
+  {id:'mon', label:'Monday', group:'c'},
+  {id:'tue', label:'Tuesday', group:'a'},
+  {id:'wed', label:'Wednesday', group:'b'},
+  {id:'thu', label:'Thursday', group:'c'},
+];
+const GROUP_LABEL = {a:'Sat + Tue', b:'Sun + Wed', c:'Mon + Thu'};
+const GROUP_CLASS = {a:'day-a', b:'day-b', c:'day-c'};
+const PAIR = {sat:'tue', tue:'sat', sun:'wed', wed:'sun', mon:'thu', thu:'mon'};
+const SLOTS = [
+  {id:'s1', label:'2:00 – 4:00 PM', defStart:'14:00', defEnd:'16:00'},
+  {id:'s2', label:'4:00 – 6:00 PM', defStart:'16:00', defEnd:'18:00'},
+  {id:'s3', label:'6:00 – 8:00 PM', defStart:'18:00', defEnd:'20:00'},
+  {id:'s4', label:'8:00 – 10:00 PM', defStart:'20:00', defEnd:'22:00'},
+];
+
+let state = { teachers: [], entries: {}, settings: {} };
+let activeTeacherId = null;
+let editingKey = null; // "teacherId|day|slot"
+let editingStatus = 'free';
+let editingMode = 'online';
+
+function keyFor(tid, day, slot){ return tid+'|'+day+'|'+slot; }
+function dayOf(k){ return k.split('|')[1]; }
+function pairedKey(k){
+  const [tid, dayId, slotId] = k.split('|');
+  return keyFor(tid, PAIR[dayId], slotId);
+}
+function fmtTime(t){
+  if(!t) return '';
+  const parts = t.split(':');
+  let h = parseInt(parts[0],10), m = parts[1];
+  const period = h>=12 ? 'PM' : 'AM';
+  let hh = h % 12; if(hh===0) hh = 12;
+  return hh+':'+m+' '+period;
+}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(t){
+  if(!t) return '';
+  const [y,m,d] = t.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return parseInt(d,10)+' '+months[parseInt(m,10)-1];
+}
+// Determines a booked entry's lifecycle state from its start/end dates:
+// 'pending' = not started yet (or start date not determined)
+// 'active'  = currently running
+// 'finished'= past its end date (kept on the grid, just recolored)
+function bookedState(entry){
+  if(entry.startUndetermined || !entry.startDate) return 'pending';
+  const today = todayStr();
+  if(today < entry.startDate) return 'pending';
+  if(!entry.endUndetermined && entry.endDate && today > entry.endDate) return 'finished';
+  return 'active';
+}
+function cellClass(entry){
+  if(!entry || !entry.status || entry.status === 'free') return 'free';
+  return bookedState(entry);
+}
+
+async function loadState(){
+  let loadedExisting = false;
+  try{
+    const { data, error } = await sb.from('schedule_store').select('data').eq('id','main').single();
+    if(error) throw error;
+    if(data && data.data && typeof data.data === 'object'){
+      state = data.data;
+      loadedExisting = true;
+    }
+  }catch(e){
+    console.warn('No existing schedule data found yet, or the read failed:', e);
+  }
+  if(!state.teachers) state.teachers = [];
+  if(!state.entries) state.entries = {};
+  if(!state.settings) state.settings = {};
+  // Only seed + persist default teachers on a genuinely first-ever run.
+  // Never re-save on a normal load — that would overwrite real saved data
+  // whenever a read happened to fail or come back empty.
+  if(!loadedExisting && state.teachers.length === 0){
+    state.teachers = [
+      {id:'t1', name:'Teacher 1'},
+      {id:'t2', name:'Teacher 2'}
+    ];
+    await saveState();
+  }
+  activeTeacherId = state.teachers[0] ? state.teachers[0].id : null;
+}
+
+async function saveState(){
+  const statusEl = document.getElementById('saveStatus');
+  try{
+    const { error } = await sb.from('schedule_store').update({ data: state }).eq('id','main');
+    if(error) throw error;
+    if(statusEl){
+      const t = new Date();
+      statusEl.textContent = 'Saved at ' + String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+      statusEl.className = 'save-status ok';
+    }
+    return true;
+  }catch(e){
+    console.error('Database save error', e);
+    if(statusEl){
+      statusEl.textContent = '⚠ Could not save that change — please try again, or use Export backup to keep a copy.';
+      statusEl.className = 'save-status fail';
+    }
+    return false;
+  }
+}
+
+function renderTeacherSelect(){
+  const sel = document.getElementById('teacherSelect');
+  sel.innerHTML = '';
+  state.teachers.forEach(t=>{
+    const o = document.createElement('option');
+    o.value = t.id; o.textContent = t.name;
+    if(t.id === activeTeacherId) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function renderDaySelect(){
+  const sel = document.getElementById('daySelect');
+  if(sel.dataset.built) return;
+  sel.innerHTML = '';
+  DAYS.forEach(d=>{
+    const o = document.createElement('option');
+    o.value = d.id; o.textContent = d.label + ' (' + GROUP_LABEL[d.group] + ')';
+    sel.appendChild(o);
+  });
+  sel.dataset.built = '1';
+}
+
+function timeChip(entry, slot){
+  const cs = entry.customStart || slot.defStart;
+  const ce = entry.customEnd || slot.defEnd;
+  if(cs === slot.defStart && ce === slot.defEnd) return '';
+  return '<div class="cell-time">⏱ '+fmtTime(cs)+' – '+fmtTime(ce)+'</div>';
+}
+
+function cellSummaryHTML(entry, slot){
+  if(!entry || !entry.status || entry.status === 'free'){
+    return '<div class="cell-course">Free</div>';
+  }
+  const icon = entry.mode === 'offline' ? '🏫' : '💻';
+  const linkTag = entry.linked ? '<span class="link-icon">🔗</span>' : '';
+  const state = bookedState(entry);
+  let dateLabel = '';
+  if(state === 'pending'){
+    dateLabel = (entry.startUndetermined || !entry.startDate) ? 'Start TBD' : 'Starts '+fmtDate(entry.startDate);
+  } else if(state === 'finished'){
+    dateLabel = 'Ended '+fmtDate(entry.endDate);
+  }
+  return '<div class="cell-course">'+(escapeHtml(entry.course)||'Booked')+'</div>'+
+         '<div class="cell-meta"><span class="mode-icon">'+icon+'</span>'+entry.mode+linkTag+'</div>'+
+         (dateLabel ? '<div class="cell-time">'+dateLabel+'</div>' : '') +
+         timeChip(entry, slot);
+}
+
+function escapeHtml(str){
+  if(!str) return '';
+  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function renderWeekly(){
+  const teacher = state.teachers.find(t=>t.id===activeTeacherId);
+  document.getElementById('weeklyTitle').textContent = teacher ? teacher.name + "'s Schedule" : 'Schedule';
+  const table = document.getElementById('weeklyTable');
+  let html = '<tr><th class="slot-col">Time</th>';
+  DAYS.forEach(d=>{
+    html += '<th class="'+GROUP_CLASS[d.group]+'">'+d.label+'<span class="group-tag">'+GROUP_LABEL[d.group]+'</span></th>';
+  });
+  html += '</tr>';
+  SLOTS.forEach(s=>{
+    html += '<tr><td class="slot-label">'+s.label+'</td>';
+    DAYS.forEach(d=>{
+      const k = keyFor(activeTeacherId, d.id, s.id);
+      const entry = state.entries[k];
+      const cls = cellClass(entry);
+      html += '<td class="cell '+cls+'" data-key="'+k+'">'+cellSummaryHTML(entry, s)+'</td>';
+    });
+    html += '</tr>';
+  });
+  table.innerHTML = html;
+  table.querySelectorAll('td.cell').forEach(td=>{
+    td.addEventListener('click', ()=> tryOpenCellModal(td.dataset.key));
+  });
+}
+
+function renderOverview(){
+  const sel = document.getElementById('daySelect');
+  const day = sel.value || DAYS[0].id;
+  const table = document.getElementById('overviewTable');
+  let html = '<tr><th style="background:transparent;"></th>';
+  SLOTS.forEach(s=> html += '<th>'+s.label+'</th>');
+  html += '</tr>';
+  state.teachers.forEach(t=>{
+    html += '<tr><td class="tname">'+escapeHtml(t.name)+'</td>';
+    SLOTS.forEach(s=>{
+      const k = keyFor(t.id, day, s.id);
+      const entry = state.entries[k];
+      const cls = cellClass(entry);
+      html += '<td class="cell '+cls+'" data-key="'+k+'">'+cellSummaryHTML(entry, s)+'</td>';
+    });
+    html += '</tr>';
+  });
+  table.innerHTML = html;
+  table.querySelectorAll('td.cell').forEach(td=>{
+    td.addEventListener('click', ()=> tryOpenCellModal(td.dataset.key));
+  });
+}
+
+function renderLog(){
+  const body = document.getElementById('logBody');
+  const rows = [];
+  Object.keys(state.entries).forEach(k=>{
+    const entry = state.entries[k];
+    if(!entry || !entry.status || entry.status === 'free') return;
+    const [tid, dayId, slotId] = k.split('|');
+    const teacher = state.teachers.find(t=>t.id===tid);
+    const day = DAYS.find(d=>d.id===dayId);
+    const slot = SLOTS.find(s=>s.id===slotId);
+    if(!teacher || !day || !slot) return;
+    rows.push({teacher, day, slot, entry});
+  });
+  if(rows.length === 0){
+    body.innerHTML = '';
+    document.getElementById('logEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('logEmpty').style.display = 'none';
+  rows.sort((a,b)=> a.teacher.name.localeCompare(b.teacher.name) || a.day.label.localeCompare(b.day.label));
+  body.innerHTML = rows.map(r=>{
+    const e = r.entry;
+    const state = bookedState(e);
+    const pillClass = 'pill-'+state;
+    const statusLabel = state === 'pending' ? 'Not started' : state === 'active' ? 'In progress' : 'Finished';
+    const mode = e.mode==='offline' ? '🏫 Offline' : '💻 Online';
+    const cs = e.customStart || r.slot.defStart, ce = e.customEnd || r.slot.defEnd;
+    const timeLabel = (cs===r.slot.defStart && ce===r.slot.defEnd) ? r.slot.label : (fmtTime(cs)+' – '+fmtTime(ce));
+    return '<tr>'+
+      '<td>'+escapeHtml(r.teacher.name)+'</td>'+
+      '<td>'+r.day.label+'</td>'+
+      '<td>'+timeLabel+'</td>'+
+      '<td>'+(escapeHtml(e.course)||'—')+'</td>'+
+      '<td>'+mode+'</td>'+
+      '<td><span class="pill '+pillClass+'">'+statusLabel+'</span></td>'+
+      '<td>'+(e.linked ? '🔗' : '—')+'</td>'+
+      '<td>'+(escapeHtml(e.note)||'—')+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+function renderAll(){
+  renderTeacherSelect();
+  renderDaySelect();
+  renderWeekly();
+  renderOverview();
+  renderLog();
+}
+
+/* ---------- Cell modal ---------- */
+function tryOpenCellModal(k){
+  openCellModal(k);
+}
+
+function openCellModal(k){
+  editingKey = k;
+  const [tid, dayId, slotId] = k.split('|');
+  const teacher = state.teachers.find(t=>t.id===tid);
+  const day = DAYS.find(d=>d.id===dayId);
+  const slot = SLOTS.find(s=>s.id===slotId);
+  const entry = state.entries[k] || {status:'free', mode:'online', course:'', startDate:'', endDate:'', startUndetermined:false, endUndetermined:false, customStart:'', customEnd:'', note:'', linked:false};
+
+  document.getElementById('cellTitle').textContent = teacher.name;
+  document.getElementById('cellSub').textContent = day.label + ' · ' + slot.label;
+
+  editingStatus = entry.status || 'free';
+  editingMode = entry.mode || 'online';
+  setStatusUI(editingStatus);
+  setModeUI(editingMode);
+
+  document.getElementById('courseInput').value = entry.course || '';
+  document.getElementById('startDateInput').value = entry.startDate || '';
+  document.getElementById('endDateInput').value = entry.endDate || '';
+  document.getElementById('startUndeterminedCheckbox').checked = !!entry.startUndetermined;
+  document.getElementById('endUndeterminedCheckbox').checked = !!entry.endUndetermined;
+  document.getElementById('startDateInput').disabled = !!entry.startUndetermined;
+  document.getElementById('endDateInput').disabled = !!entry.endUndetermined;
+  document.getElementById('startTimeInput').value = entry.customStart || slot.defStart;
+  document.getElementById('endTimeInput').value = entry.customEnd || slot.defEnd;
+  document.getElementById('noteInput').value = entry.note || '';
+
+  const pairedDayLabel = DAYS.find(d=>d.id===PAIR[dayId]).label;
+  document.getElementById('linkLabel').textContent = 'Also apply to ' + pairedDayLabel + ' (linked)';
+  document.getElementById('linkCheckbox').checked = entry.status === 'free' ? true : !!entry.linked;
+
+  const hasPair = !!state.entries[pairedKey(k)] && state.entries[pairedKey(k)].linked && entry.linked;
+  document.getElementById('clearBothBtn').style.display = hasPair ? 'inline-block' : 'none';
+
+  document.getElementById('cellOverlay').classList.add('active');
+}
+
+function setStatusUI(status){
+  editingStatus = status;
+  document.querySelectorAll('#statusChoices button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.v === status);
+  });
+  document.getElementById('detailFields').style.display = (status === 'booked') ? 'block' : 'none';
+  document.getElementById('modeFieldRow').style.display = status === 'booked' ? 'block' : 'none';
+  document.getElementById('linkBox').style.display = status === 'booked' ? 'flex' : 'none';
+}
+function setModeUI(mode){
+  editingMode = mode;
+  document.querySelectorAll('#modeToggle button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.v === mode);
+  });
+}
+
+document.getElementById('statusChoices').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  setStatusUI(btn.dataset.v);
+});
+document.getElementById('modeToggle').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  setModeUI(btn.dataset.v);
+});
+
+document.getElementById('startUndeterminedCheckbox').addEventListener('change', e=>{
+  const input = document.getElementById('startDateInput');
+  input.disabled = e.target.checked;
+  if(e.target.checked) input.value = '';
+});
+document.getElementById('endUndeterminedCheckbox').addEventListener('change', e=>{
+  const input = document.getElementById('endDateInput');
+  input.disabled = e.target.checked;
+  if(e.target.checked) input.value = '';
+});
+
+document.getElementById('cellClose').addEventListener('click', ()=>{
+  document.getElementById('cellOverlay').classList.remove('active');
+});
+document.getElementById('cellOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'cellOverlay') document.getElementById('cellOverlay').classList.remove('active');
+});
+
+document.getElementById('saveCellBtn').addEventListener('click', async ()=>{
+  const wantLink = editingStatus === 'booked' && document.getElementById('linkCheckbox').checked;
+  const existing = state.entries[editingKey] || {};
+  let linkId = existing.linkId;
+  if(wantLink && !linkId) linkId = 'lnk'+Date.now();
+
+  const entry = {
+    status: editingStatus,
+    mode: editingMode,
+    course: document.getElementById('courseInput').value.trim(),
+    startDate: document.getElementById('startDateInput').value,
+    endDate: document.getElementById('endDateInput').value,
+    startUndetermined: document.getElementById('startUndeterminedCheckbox').checked,
+    endUndetermined: document.getElementById('endUndeterminedCheckbox').checked,
+    customStart: document.getElementById('startTimeInput').value,
+    customEnd: document.getElementById('endTimeInput').value,
+    note: document.getElementById('noteInput').value.trim(),
+    linked: wantLink,
+    linkId: wantLink ? linkId : undefined,
+  };
+
+  const pKey = pairedKey(editingKey);
+  if(wantLink){
+    state.entries[editingKey] = entry;
+    state.entries[pKey] = Object.assign({}, entry);
+  } else {
+    state.entries[editingKey] = entry;
+    // if this entry was previously linked, unlink its paired partner too so it becomes independent
+    const paired = state.entries[pKey];
+    if(existing.linked && paired && paired.linkId === existing.linkId){
+      paired.linked = false;
+      delete paired.linkId;
+    }
+  }
+
+  await saveState();
+  document.getElementById('cellOverlay').classList.remove('active');
+  renderAll();
+});
+
+document.getElementById('clearCellBtn').addEventListener('click', async ()=>{
+  const existing = state.entries[editingKey];
+  const pKey = pairedKey(editingKey);
+  delete state.entries[editingKey];
+  const paired = state.entries[pKey];
+  if(existing && existing.linked && paired && paired.linkId === existing.linkId){
+    paired.linked = false;
+    delete paired.linkId;
+  }
+  await saveState();
+  document.getElementById('cellOverlay').classList.remove('active');
+  renderAll();
+});
+
+document.getElementById('clearBothBtn').addEventListener('click', async ()=>{
+  delete state.entries[editingKey];
+  delete state.entries[pairedKey(editingKey)];
+  await saveState();
+  document.getElementById('cellOverlay').classList.remove('active');
+  renderAll();
+});
+
+/* ---------- Teacher select / manage ---------- */
+document.getElementById('teacherSelect').addEventListener('change', e=>{
+  activeTeacherId = e.target.value;
+  renderWeekly();
+});
+document.getElementById('daySelect').addEventListener('change', renderOverview);
+
+document.getElementById('manageBtn').addEventListener('click', ()=>{
+  renderTeacherList();
+  document.getElementById('teacherOverlay').classList.add('active');
+});
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const dataStr = JSON.stringify(state, null, 2);
+  const blob = new Blob([dataStr], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = todayStr();
+  a.href = url;
+  a.download = 'conversationalists-schedule-backup-'+stamp+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if(!parsed || typeof parsed !== 'object' || !parsed.teachers || !parsed.entries){
+      alert('This file doesn\'t look like a valid schedule backup.');
+      e.target.value = '';
+      return;
+    }
+    const ok = window.confirm('This will replace the current schedule with the contents of this backup. Continue?');
+    if(!ok){ e.target.value = ''; return; }
+    state = parsed;
+    if(!state.settings) state.settings = {};
+    activeTeacherId = state.teachers[0] ? state.teachers[0].id : null;
+    await saveState();
+    renderAll();
+    alert('Backup restored.');
+  }catch(err){
+    alert('Could not read that file — make sure it\'s a schedule backup exported from this tool.');
+  }
+  e.target.value = '';
+});
+
+document.getElementById('teacherClose').addEventListener('click', ()=>{
+  document.getElementById('teacherOverlay').classList.remove('active');
+});
+document.getElementById('teacherOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'teacherOverlay') document.getElementById('teacherOverlay').classList.remove('active');
+});
+
+function renderTeacherList(){
+  const list = document.getElementById('teacherList');
+  list.innerHTML = state.teachers.map(t=>
+    '<div class="teacher-row"><span>'+escapeHtml(t.name)+'</span>'+
+    '<button class="btn btn-danger btn-sm" data-tid="'+t.id+'">Remove</button></div>'
+  ).join('');
+  list.querySelectorAll('button[data-tid]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const tid = btn.dataset.tid;
+      if(state.teachers.length <= 1){ alert('At least one teacher is required.'); return; }
+      state.teachers = state.teachers.filter(t=>t.id!==tid);
+      Object.keys(state.entries).forEach(k=>{ if(k.startsWith(tid+'|')) delete state.entries[k]; });
+      if(activeTeacherId === tid) activeTeacherId = state.teachers[0].id;
+      await saveState();
+      renderTeacherList();
+      renderAll();
+    });
+  });
+}
+
+document.getElementById('addTeacherBtn').addEventListener('click', async ()=>{
+  const input = document.getElementById('newTeacherInput');
+  const name = input.value.trim();
+  if(!name) return;
+  const id = 't'+Date.now();
+  state.teachers.push({id, name});
+  input.value = '';
+  await saveState();
+  renderTeacherList();
+  renderAll();
+});
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-'+tab.dataset.view).classList.add('active');
+    if(tab.dataset.view === 'overview') renderOverview();
+    if(tab.dataset.view === 'log') renderLog();
+  });
+});
+
+/* ---------- Live sync: real-time updates + a polling fallback ---------- */
+function applyIncomingState(newState){
+  // Don't yank the schedule out from under someone mid-edit.
+  const cellOpen = document.getElementById('cellOverlay').classList.contains('active');
+  const teacherOpen = document.getElementById('teacherOverlay').classList.contains('active');
+  if(cellOpen || teacherOpen) return;
+  if(!newState || typeof newState !== 'object') return;
+  if(JSON.stringify(newState) === JSON.stringify(state)) return;
+  state = newState;
+  if(!state.teachers) state.teachers = [];
+  if(!state.entries) state.entries = {};
+  if(!state.settings) state.settings = {};
+  if(!state.teachers.find(t=>t.id===activeTeacherId)){
+    activeTeacherId = state.teachers[0] ? state.teachers[0].id : null;
+  }
+  renderAll();
+}
+
+async function pollForUpdates(){
+  try{
+    const { data, error } = await sb.from('schedule_store').select('data').eq('id','main').single();
+    if(error) throw error;
+    if(data && data.data) applyIncomingState(data.data);
+  }catch(e){ /* transient poll miss — keep showing the last known good state */ }
+}
+
+function setupRealtime(){
+  sb.channel('schedule-store-changes')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'schedule_store', filter: 'id=eq.main' }, (payload)=>{
+      if(payload && payload.new && payload.new.data) applyIncomingState(payload.new.data);
+    })
+    .subscribe();
+}
+
+/* ---------- Init ---------- */
+(async function init(){
+  await loadState();
+  renderAll();
+  setupRealtime();
+  setInterval(pollForUpdates, 20000); // fallback in case a realtime event is missed
+})();
+</script>
+</body>
+</html>
